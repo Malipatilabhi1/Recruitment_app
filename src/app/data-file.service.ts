@@ -18,6 +18,10 @@ export class DataFileService {
   Assessments:any=[];
   Search_email:any;
   candidateEmail:any;
+  canDetails : any ;
+  setVal : any ;
+  showFiltered : boolean = false;
+  canInfo : any ;
   
   constructor(private _http:HttpClient) { }
 
@@ -31,6 +35,18 @@ export class DataFileService {
   {
     this.arr=data;
     console.log(this.arr)
+  }
+
+  Intermediate2(data:any)
+  {
+    this.canDetails=data;
+    this.setVal = true;
+
+  }
+
+  newProfile () : void {
+    
+    this.setVal = false;
   }
 
   sendData(emailId:any,phone:any,name:any,experience:any,skills:number)
@@ -79,6 +95,14 @@ export class DataFileService {
         emailId,
       },{headers:this.headers}
     );
+  }
+
+  getQA(canId:any, RowandQuestion_number:any,assessmentId:any){
+    return this._http.post<any>('http://20.192.1.163:3000/assessmentStagingManager',{
+      canId,
+      RowandQuestion_number,
+      assessmentId },
+      {headers:this.headers})
   }
 
   gettingDataForScheduler(canId: any) {
@@ -131,15 +155,12 @@ export class DataFileService {
     },{headers:this.headers})
   }
 
-
-
-
-  upload(file: File): Observable<HttpEvent<any>> {
+  uploadprofile(file: File): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
 
     formData.append('file', file);
 
-    const req = new HttpRequest('POST', `${this.baseUrl}/uploadFile`, formData, {
+    const req = new HttpRequest('POST', `${this.baseUrl}/uploadProfile`, formData, {
       reportProgress: true,
       responseType: 'json'
     });
@@ -147,7 +168,40 @@ export class DataFileService {
     return this._http.request(req);
   }
 
-  getFiles(): Observable<any> {
-    return this._http.get(`${this.baseUrl}/files`);
+  uploadskill(file: File): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+
+    formData.append('file', file);
+
+    const req = new HttpRequest('POST', `${this.baseUrl}/uploadSKills`, formData, {
+      reportProgress: true,
+      responseType: 'json'
+    });
+
+    return this._http.request(req);
   }
+
+  
+  uploadpQA(file: File): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+
+    formData.append('file', file);
+
+    const req = new HttpRequest('POST', `${this.baseUrl}/uploadQnA`, formData, {
+      reportProgress: true,
+      responseType: 'json'
+    });
+
+    return this._http.request(req);
+  }
+
+  // getFiles(): Observable<any> {
+  //   return this._http.get(`${this.baseUrl}/uploadSKills`);
+  // }
+
+  candiAndIntervInfo (data : any) : void { 
+    this.canInfo = data ;
+}
+
+
 }

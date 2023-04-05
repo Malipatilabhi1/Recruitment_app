@@ -15,6 +15,7 @@ import { WebapiComponent } from './webapi/webapi.component';
 import { HeaderComponent } from './header/header.component';
 import { MaslGuard } from './masl.guard';
 import { AssesmentScreenComponent } from './assesment-screen/assesment-screen.component';
+import { ViewAssessmentComponent } from './view-assessment/view-assessment.component';
 
 const routes: Routes = [
    {path:'',component:DashboardComponent,},
@@ -23,13 +24,14 @@ const routes: Routes = [
   // {path:'QASection',component:SidebarContentComponent,canActivate:[MaslGuard]},
   {path:'QASection',component:SidebarContentComponent},
   {path:'sign',component:SignInPageComponent,},
-  {path:'Assessment',component:InterviewerScreenComponent},
+  {path:'assessment',component:InterviewerScreenComponent},
 
   {path:'Candidate-Info',component:AssesmentScreenComponent},
   {path:'app',component:AppComponent},
   {path:'barchart',component:ScoreComponent,canActivate:[MaslGuard]},
   {path:'addqa',component:EditDataComponent},
   {path:'interview-info',component:InterviewInfoComponent},
+  {path:'view-assessment',component:ViewAssessmentComponent},
   // {path:'**',component:DashboardComponent},
   
   

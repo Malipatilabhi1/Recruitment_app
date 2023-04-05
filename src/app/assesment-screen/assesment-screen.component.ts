@@ -65,6 +65,7 @@ export class AssesmentScreenComponent implements OnInit {
   Rarr:any=[];
   statuss:any="closed";
   p: any = 0;
+  details : any ;
   dialogRef: MatDialogRef <any> ;
 
   constructor(
@@ -80,6 +81,7 @@ export class AssesmentScreenComponent implements OnInit {
   ngOnInit(): void {
     this.getCandidates();
     this.filterCandidate(this.arr)
+    this.dfs.showFiltered = false;
   }
   
 
@@ -121,6 +123,19 @@ export class AssesmentScreenComponent implements OnInit {
     this.dfs.Intermediate(data);
   }
 
+  sendData2( email : any , experience : any , name:any , phone : any, skills:any){
+   
+    this.details = { name : name , phone : phone , email : email , experience : experience, skills: skills };
+    this.dfs.Intermediate2(this.details);
+    
+  }
+
+  newCandidate () : void {
+    
+    this.dfs.newProfile();
+  
+  }
+
   delete(){
     
   }
@@ -132,7 +147,7 @@ export class AssesmentScreenComponent implements OnInit {
       {
         data:{
           value,
-          style:"width:80%, height:80% "
+          style:"width:80%, height:80%"
         }
       });
   }

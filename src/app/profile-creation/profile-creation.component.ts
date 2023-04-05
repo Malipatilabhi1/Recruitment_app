@@ -1,4 +1,4 @@
-import { HttpClient,HttpClientModule } from '@angular/common/http';
+import { HttpClient,HttpClientModule, HttpEventType, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, EventEmitter, 
   Input, OnInit, OnChanges, Output, SimpleChanges, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -6,6 +6,8 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { FormArray,FormBuilder,FormControl,FormGroup,Validators,} from '@angular/forms';
 import { DataFileService } from '../data-file.service';
 import { FormData } from '../form-data'; 
+import { Observable } from 'rxjs';
+import { ThrottlingUtils } from '@azure/msal-common';
 
 @Component({
   selector: 'app-profile-creation',
@@ -46,17 +48,34 @@ export class ProfileCreationComponent implements OnInit{
   public static Experiance: any = '';
   EmailforEdit:string='';
 
+
+  selectedFiles?: FileList;
+  currentFile?: File;
+  progress2 = 0;
+  message = '';
+
+  fileInfos?: Observable<any>;
+
   // Skill:any=[{skillId:'1',skillName:'C#'},{skillId:'2',skillName:'Angular'},{skillId:'3',skillName:'SQL'},{skillId:'4',skillName:'Azure'}];
 
   constructor(
     private _http: HttpClient,
     private formBuilder: FormBuilder,
     private elementRef: ElementRef,
-    private _service: DataFileService
+    private _service: DataFileService,
+    private UploadService:DataFileService
   ) {}
 
   ngOnInit(): void {
+    
+    // this.skillArray=this._service.canDetails.skills;
+    // for(let i=0;i<this.skillArray.length;i++){
+      
+    // }
+
+
     this.EmailforEdit=this._service.arr;
+    this.setValueForProfile();
     this.getSkills();
     this.getComplexity();
     this.form = this.formBuilder.group({
@@ -69,6 +88,7 @@ export class ProfileCreationComponent implements OnInit{
     });
     console.log(this.EmailforEdit)
 
+    this.myData=this.UploadService.Intermediate2;
     
   }
 
@@ -104,6 +124,7 @@ export class ProfileCreationComponent implements OnInit{
   thirdFormGroup = this.formBuilder.group({
     resume: [''],
   });
+
   skillFormGroup = new FormGroup({
     Skills: new FormArray(
       [
@@ -122,6 +143,7 @@ export class ProfileCreationComponent implements OnInit{
   phone: any;
   experience: any;
   SkillA: any = [];
+  // skils:any = [];
 
   storeDatas() {
   debugger
@@ -349,7 +371,9 @@ debugger
   sheduleMessage:any="";
   Mymessage:any="";
 
+ value:any='2023-02-15';
   submit() {
+
     debugger
     console.log(this.form.value);
     this.cArray = this.form.value.selected;
@@ -359,7 +383,8 @@ debugger
     this._service
       // .sendingSchedulingDataToBackend(this.canId, this.newdate, this.cId)
       let canId=this.canId;
-      let date=this.newdate;
+      let date=this.value;
+
       let interviewSkills=this.cId;
       this._http.post(
         'http://20.192.1.163:3000/candidateInterviewManager/addInterview',
@@ -380,6 +405,92 @@ debugger
         alert(this.Mymessage)
       });
   }
+
+
+  selectFile(event: any): void {
+    // if(event.target.files.type=='text/csv' ||event.target.files.type=='.csv'){
+    //   this.selectedFiles = event.target.files;
+    // }else{
+    //   alert("Only CSV file can upload")
+    // }
+      this.selectedFiles = event.target.files;
+    }
+
+    
+  uploadProfile(): void {
+    debugger
+    this.progress2 = 0;
+
+    if (this.selectedFiles) {
+      const file: File | null = this.selectedFiles.item(0);
+
+      if (file) {
+        this.currentFile = file;
+
+        this.UploadService.uploadprofile(this.currentFile).subscribe({
+          next: (event: any) => {
+            if (event.type === HttpEventType.UploadProgress) {
+              this.progress2 = Math.round(100 * event.loaded / event.total);
+            } else if (event instanceof HttpResponse) {
+              this.message = event.body.message;
+              // this.fileInfos = this.uploadService.getFiles();
+            }
+          },
+          error: (err: any) => {
+            console.log(err);
+            this.progress2 = 0;
+
+            if (err.error && err.error.message) {
+              this.message = err.error.message;
+            } else {
+              this.message = 'Could not upload the file!';
+            }
+
+            this.currentFile = undefined;
+          }
+        });
+      }
+
+      this.selectedFiles = undefined;
+    }
+  }
+newskill:boolean=false;
+  setValueForProfile () : void {
+   
+    // for(let x of this._service.canDetails.skills){
+    // this.skils = x;
+    // }
+    // console.log(this.skils);
+    if (this._service.setVal === true) {
+    this.firstFormGroup.controls.email.setValue(this._service.canDetails.email);
+    this.firstFormGroup.controls.experience.setValue(this._service.canDetails.experience);
+    this.firstFormGroup.controls.name.setValue(this._service.canDetails.name);
+    this.firstFormGroup.controls.phone.setValue(this._service.canDetails.phone);
+    //  this.skillFormGroup.controls.Skills.setValue(this._service.canDetails.skills);
+    this.newskill=true;
+    this.skillArray=this._service.canDetails.skills;
+    
+    console.log("--------------")
+//  this.skillFormGroup.controls.FormArray.forEach(element => {
+//   element.setValue()
+//  });
+
+     
+    console.log(this._service.canDetails.skills);
+    
+    console.log("--------------")
+     
+     
+    }
+    else {
+      this.firstFormGroup.controls.email.setValue("");
+    this.firstFormGroup.controls.experience.setValue("");
+    this.firstFormGroup.controls.name.setValue("");
+    this.firstFormGroup.controls.phone.setValue("");
+     
+    }
+  }
+  
 
   
 }
